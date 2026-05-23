@@ -8,6 +8,7 @@ function createElectronApi(ipcRenderer) {
   return {
     ...invokeActions,
     ...eventActions,
+    platform: process.platform,
     log: (message) => {
       console.log('PreloadAPI log:', message);
     },

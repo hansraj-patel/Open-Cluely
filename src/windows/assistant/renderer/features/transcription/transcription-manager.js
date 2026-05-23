@@ -287,6 +287,14 @@ export function createTranscriptionManager({
         return audioPipeline.getSystemAudioStream(sourceId);
     }
 
+    function isMacPlatform() {
+        const platform = window.electronAPI?.platform;
+        if (platform) {
+            return platform === 'darwin';
+        }
+        return /Mac/i.test(navigator.platform || navigator.userAgent || '');
+    }
+
     function resetSourceSampleQueue(source) {
         audioPipeline.resetSourceSampleQueue(source);
     }
@@ -377,22 +385,28 @@ export function createTranscriptionManager({
         resetFinalTranscriptBuffer('system');
 
         try {
-            const sources = await window.electronAPI.getDesktopSources();
-            if (!sources || sources.length === 0) throw new Error('No desktop sources found');
-            const sourceId = sources[0].id;
-            addMonitorLog('info', 'desktop-source', `Using desktop source: ${sources[0].name || sourceId}`, 'system');
-
             const result = await window.electronAPI.startVoiceRecognition('system');
             if (result && result.error) throw new Error(result.error);
 
-            systemMediaStream = await getSystemAudioStream(sourceId);
+            if (isMacPlatform()) {
+                // macOS: capture host audio from the BlackHole loopback input device.
+                // The desktop-loopback path below does not yield system audio on macOS.
+                systemMediaStream = await audioPipeline.getMacSystemAudioStream();
+            } else {
+                const sources = await window.electronAPI.getDesktopSources();
+                if (!sources || sources.length === 0) throw new Error('No desktop sources found');
+                const sourceId = sources[0].id;
+                addMonitorLog('info', 'desktop-source', `Using desktop source: ${sources[0].name || sourceId}`, 'system');
 
-            const videoTrack = systemMediaStream.getVideoTracks()[0];
-            if (videoTrack && isLikelyCameraTrack(videoTrack.label)) {
-                throw new Error(`Desktop capture fell back to camera source (${videoTrack.label || 'unknown'}).`);
+                systemMediaStream = await getSystemAudioStream(sourceId);
+
+                const videoTrack = systemMediaStream.getVideoTracks()[0];
+                if (videoTrack && isLikelyCameraTrack(videoTrack.label)) {
+                    throw new Error(`Desktop capture fell back to camera source (${videoTrack.label || 'unknown'}).`);
+                }
+
+                systemMediaStream.getVideoTracks().forEach((track) => track.stop());
             }
-
-            systemMediaStream.getVideoTracks().forEach((track) => track.stop());
 
             systemAudioContext = new AudioContext();
             await systemAudioContext.resume();

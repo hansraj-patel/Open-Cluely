@@ -27,7 +27,7 @@ let stealthHideTimeout = null;
 const THEME_STORAGE_KEY = 'assistant-theme';
 const THEME_LIGHT = 'light';
 const THEME_DARK = 'dark';
-let activeTheme = THEME_LIGHT;
+let activeTheme = THEME_DARK;
 const AI_CONTEXT_CHAR_BUDGET = 12000;
 const messageStore = createMessageStore();
 let chatMessagesArray = messageStore.getMessages();
@@ -397,10 +397,10 @@ function normalizeTheme(theme) {
 function loadStoredThemePreference() {
     try {
         const savedTheme = window.localStorage?.getItem(THEME_STORAGE_KEY) || '';
-        return parseThemePreference(savedTheme) || THEME_LIGHT;
+        return parseThemePreference(savedTheme) || THEME_DARK;
     } catch (error) {
         console.warn('Failed to read saved theme preference:', error);
-        return THEME_LIGHT;
+        return THEME_DARK;
     }
 }
 

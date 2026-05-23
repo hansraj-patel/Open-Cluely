@@ -105,6 +105,52 @@ export function createAudioPipeline({ sendAudioChunk, addMonitorLog }) {
     }
   }
 
+  async function getMacSystemAudioStream({ preferredLabel = 'blackhole' } = {}) {
+    // macOS cannot capture system audio via chromeMediaSource:'desktop'. Instead
+    // we read from a loopback input device (BlackHole), which the user routes
+    // their system output into. Capturing it is just a normal getUserMedia call.
+    const matchLabel = String(preferredLabel || 'blackhole').toLowerCase();
+
+    // Device labels are only populated after media permission is granted, so
+    // request mic access once (this also triggers the macOS TCC prompt) and
+    // immediately release it before enumerating.
+    try {
+      const primingStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      primingStream.getTracks().forEach((track) => track.stop());
+    } catch (error) {
+      addMonitorLog('error', 'mac-audio-permission', error.message || 'Microphone permission denied', 'system');
+      throw new Error('Microphone permission is required to capture host audio on macOS.');
+    }
+
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const loopbackDevice = devices.find(
+      (device) => device.kind === 'audioinput' && String(device.label || '').toLowerCase().includes(matchLabel)
+    );
+
+    if (!loopbackDevice) {
+      throw new Error(
+        'BlackHole input not found — install BlackHole and route your system output through it (see macOS setup).'
+      );
+    }
+
+    addMonitorLog(
+      'info',
+      'mac-loopback-device',
+      `Using loopback input: ${loopbackDevice.label || loopbackDevice.deviceId}`,
+      'system'
+    );
+
+    return navigator.mediaDevices.getUserMedia({
+      audio: {
+        deviceId: { exact: loopbackDevice.deviceId },
+        channelCount: 1,
+        echoCancellation: false,
+        noiseSuppression: false,
+        autoGainControl: false
+      }
+    });
+  }
+
   function resetSourceSampleQueue(source) {
     const resolvedSource = normalizeSource(source);
     sourceSampleQueues[resolvedSource] = { chunks: [], length: 0 };
@@ -263,6 +309,7 @@ export function createAudioPipeline({ sendAudioChunk, addMonitorLog }) {
     buildAudioProcessor,
     drainSourceSampleQueue,
     getSystemAudioStream,
+    getMacSystemAudioStream,
     isLikelyCameraTrack,
     resetChunkCounter,
     resetSourceSampleQueue,
