@@ -12,9 +12,13 @@ function registerSettingsIpc({
   windowController,
   getAssemblyAiSpeechModel,
   setAssemblyAiSpeechModel,
+  getSttProvider,
+  setSttProvider,
   keyboardShortcuts,
   assemblyAiSpeechModels,
-  defaultAssemblyAiSpeechModel
+  defaultAssemblyAiSpeechModel,
+  sttProviders,
+  defaultSttProvider
 }) {
   ipcMain.handle('get-settings', () => {
     const appEnvironment = getAppEnvironment();
@@ -41,6 +45,9 @@ function registerSettingsIpc({
       assemblyAiSpeechModels,
       defaultAssemblyAiSpeechModel,
       assemblyAiSpeechModel: getAssemblyAiSpeechModel(),
+      sttProviders,
+      defaultSttProvider,
+      sttProvider: getSttProvider(),
       keyboardShortcuts,
       hideFromScreenCapture: appEnvironment.hideFromScreenCapture,
       startHidden: appEnvironment.startHidden,
@@ -81,6 +88,7 @@ function registerSettingsIpc({
       const nextOllamaBaseUrl = geminiRuntime.setActiveOllamaBaseUrl(settings.ollamaBaseUrl);
       const nextOllamaModel = geminiRuntime.setActiveOllamaModel(settings.ollamaModel);
       const nextAssemblyModel = setAssemblyAiSpeechModel(settings.assemblyAiSpeechModel);
+      const nextSttProvider = setSttProvider(settings.sttProvider);
       const nextProgrammingLanguage = geminiRuntime.setActiveProgrammingLanguage(settings.programmingLanguage);
       const nextWindowOpacityLevel = windowController.setWindowOpacityLevel(settings.windowOpacityLevel);
 
@@ -103,6 +111,7 @@ function registerSettingsIpc({
         ollamaBaseUrl: nextOllamaBaseUrl,
         ollamaModel: nextOllamaModel,
         assemblyAiSpeechModel: nextAssemblyModel,
+        sttProvider: nextSttProvider,
         programmingLanguage: nextProgrammingLanguage,
         windowOpacityLevel: nextWindowOpacityLevel
       });

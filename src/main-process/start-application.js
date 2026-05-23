@@ -17,7 +17,10 @@ const {
   getAssemblyAiSpeechModels,
   getDefaultAssemblyAiSpeechModel,
   getKeyboardShortcuts,
-  resolveAssemblyAiSpeechModel
+  resolveAssemblyAiSpeechModel,
+  getSttProviders,
+  getDefaultSttProvider,
+  resolveSttProvider
 } = require('../config');
 const {
   getAppStatePath,
@@ -31,6 +34,8 @@ const { createScreenshotManager } = require('./features/assistant/screenshot-man
 const { registerAssistantIpc } = require('./features/assistant/ipc');
 const { createAssemblyAiService } = require('../services/assembly-ai/service');
 const { registerAssemblyAiIpc } = require('../services/assembly-ai/ipc');
+const { createWhisperService } = require('../services/whisper/service');
+const { createSttService } = require('../services/stt/service');
 const { registerSettingsIpc } = require('./features/settings/ipc');
 const { createWindowController } = require('./features/window/window-controller');
 const { DEFAULT_WINDOW_OPACITY_LEVEL } = require('./features/window/window-constants');
@@ -60,7 +65,10 @@ async function startApplication() {
   const assemblyAiSpeechModels = getAssemblyAiSpeechModels();
   const defaultAssemblyAiSpeechModel = getDefaultAssemblyAiSpeechModel();
   const keyboardShortcuts = getKeyboardShortcuts();
+  const sttProviders = getSttProviders();
+  const defaultSttProvider = getDefaultSttProvider();
   let activeAssemblyAiSpeechModel = defaultAssemblyAiSpeechModel;
+  let activeSttProvider = defaultSttProvider;
 
   let screenshotManager = null;
   let windowController = null;
@@ -98,13 +106,27 @@ async function startApplication() {
     sendToRenderer
   });
 
+  const whisperService = createWhisperService({
+    desktopCapturer,
+    getGeminiService: () => geminiRuntime.getService(),
+    sendToRenderer
+  });
+
+  const sttService = createSttService({
+    providers: {
+      'whisper-local': whisperService,
+      assemblyai: assemblyAiService
+    },
+    getActiveProvider: () => activeSttProvider
+  });
+
   windowController = createWindowController({
     app,
     screen,
     globalShortcut,
     createAssistantWindow,
     getAppEnvironment: () => appEnvironment,
-    emitSttDebug: assemblyAiService.emitSttDebug,
+    emitSttDebug: sttService.emitSttDebug,
     sendToRenderer,
     onTakeStealthScreenshot: async () => {
       if (screenshotManager) {
@@ -132,6 +154,7 @@ async function startApplication() {
     const activeOllamaBaseUrl = geminiRuntime.setActiveOllamaBaseUrl(appState.ollamaBaseUrl);
     const activeOllamaModel = geminiRuntime.setActiveOllamaModel(appState.ollamaModel);
     activeAssemblyAiSpeechModel = resolveAssemblyAiSpeechModel(appState.assemblyAiSpeechModel);
+    activeSttProvider = resolveSttProvider(appState.sttProvider);
     const activeProgrammingLanguage = geminiRuntime.setActiveProgrammingLanguage(appState.programmingLanguage);
     const activeWindowOpacityLevel = windowController.setWindowOpacityLevel(appState.windowOpacityLevel);
 
@@ -142,6 +165,7 @@ async function startApplication() {
       appState.ollamaBaseUrl !== activeOllamaBaseUrl ||
       appState.ollamaModel !== activeOllamaModel ||
       appState.assemblyAiSpeechModel !== activeAssemblyAiSpeechModel ||
+      appState.sttProvider !== activeSttProvider ||
       appState.programmingLanguage !== activeProgrammingLanguage ||
       appState.windowOpacityLevel !== activeWindowOpacityLevel
     ) {
@@ -152,6 +176,7 @@ async function startApplication() {
         ollamaBaseUrl: activeOllamaBaseUrl,
         ollamaModel: activeOllamaModel,
         assemblyAiSpeechModel: activeAssemblyAiSpeechModel,
+        sttProvider: activeSttProvider,
         programmingLanguage: activeProgrammingLanguage,
         windowOpacityLevel: activeWindowOpacityLevel
       });
@@ -168,7 +193,7 @@ async function startApplication() {
   }
 
   function cleanupTransientResources() {
-    assemblyAiService.dispose();
+    sttService.dispose();
     screenshotManager.cleanupTransientResources();
     windowController.unregisterShortcuts();
     mobileServer.close();
@@ -196,14 +221,14 @@ async function startApplication() {
     screenshotManager,
     windowController,
     geminiRuntime,
-    assemblyAiService,
+    assemblyAiService: sttService,
     sendToRenderer,
     quitApplication
   });
 
   registerAssemblyAiIpc({
     ipcMain,
-    assemblyAiService
+    sttService
   });
 
   registerSettingsIpc({
@@ -227,9 +252,20 @@ async function startApplication() {
       activeAssemblyAiSpeechModel = resolveAssemblyAiSpeechModel(nextModel, activeAssemblyAiSpeechModel);
       return activeAssemblyAiSpeechModel;
     },
+    getSttProvider: () => activeSttProvider,
+    setSttProvider: (nextProvider) => {
+      const resolvedProvider = resolveSttProvider(nextProvider);
+      if (resolvedProvider !== activeSttProvider) {
+        sttService.stopAll();
+      }
+      activeSttProvider = resolvedProvider;
+      return activeSttProvider;
+    },
     keyboardShortcuts,
     assemblyAiSpeechModels,
-    defaultAssemblyAiSpeechModel
+    defaultAssemblyAiSpeechModel,
+    sttProviders,
+    defaultSttProvider
   });
 
   app.whenReady().then(() => {

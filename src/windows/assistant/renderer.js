@@ -220,6 +220,9 @@ const settingProgrammingLanguage = document.getElementById('setting-programming-
 const settingAssemblyKey = document.getElementById('setting-assembly-key');
 const toggleAssemblyKeyVisibilityBtn = document.getElementById('toggle-assembly-key-visibility');
 const settingAssemblyModel = document.getElementById('setting-assembly-model');
+const settingSttProvider = document.getElementById('setting-stt-provider');
+const whisperSettingsGroup = document.getElementById('whisper-settings-group');
+const assemblyAiSettingsGroup = document.getElementById('assemblyai-settings-group');
 const settingWindowOpacity = document.getElementById('setting-window-opacity');
 const settingWindowOpacityValue = document.getElementById('setting-window-opacity-value');
 const settingsShortcutsList = document.getElementById('settings-shortcuts-list');
@@ -234,6 +237,7 @@ const MAX_CHAT_INPUT_HEIGHT = 88;
 let isCloseConfirmationOpen = false;
 let hasGeminiApiKeysConfigured = false;
 let hasAssemblyAiApiKeyConfigured = false;
+let activeSttProvider = null;
 const aiActionInFlightState = {
     askAi: false,
     screenAi: false,
@@ -284,6 +288,9 @@ const settingsPanelManager = createSettingsPanelManager({
     settingAssemblyKey,
     toggleAssemblyKeyVisibilityBtn,
     settingAssemblyModel,
+    settingSttProvider,
+    whisperSettingsGroup,
+    assemblyAiSettingsGroup,
     settingWindowOpacity,
     settingWindowOpacityValue,
     applySettingsShortcutConfig: (settings) => applySettingsShortcutConfig(settings),
@@ -587,6 +594,20 @@ function applyApiKeyAvailabilityFromSettings(settings) {
     } else {
         hasAssemblyAiApiKeyConfigured = hasConfiguredAssemblyAiApiKey(settings.assemblyAiApiKey);
     }
+
+    if (typeof settings.sttProvider === 'string' && settings.sttProvider) {
+        activeSttProvider = settings.sttProvider;
+    }
+}
+
+// Whether the active speech-to-text provider can run. Local Whisper needs no
+// API key; AssemblyAI requires one. Defaults to the AssemblyAI requirement
+// when the provider hasn't been resolved yet.
+function isTranscriptionAvailable() {
+    if (activeSttProvider === 'whisper-local') {
+        return true;
+    }
+    return hasAssemblyAiApiKeyConfigured;
 }
 
 async function loadShortcutConfig() {
@@ -672,7 +693,7 @@ function setSourceSelected(source, enabled) {
 }
 
 async function toggleMasterTranscription() {
-    if (!hasAssemblyAiApiKeyConfigured) {
+    if (!isTranscriptionAvailable()) {
         showFeedback('AssemblyAI API key missing. Add it in Settings.', 'error');
         return;
     }
@@ -1020,7 +1041,7 @@ function updateUI() {
     const hasEnabledScreenshots = aiBundle.enabledScreenshotIds.length > 0;
     const hasAiContext = hasTranscriptContext || hasEnabledScreenshots || aiBundle.contextString.length > 0;
     const canRunAiActions = hasGeminiApiKeysConfigured;
-    const canRunTranscription = hasAssemblyAiApiKeyConfigured;
+    const canRunTranscription = isTranscriptionAvailable();
     const askAiInFlight = isAiActionInFlight('askAi');
     const screenAiInFlight = isAiActionInFlight('screenAi');
     const suggestInFlight = isAiActionInFlight('suggest');

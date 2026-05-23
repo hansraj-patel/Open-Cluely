@@ -561,6 +561,7 @@ function createAssemblyAiService({
     handleAudioChunk,
     resetSttHistoryBuffers,
     startAssemblyAiStream,
+    startStream: startAssemblyAiStream,
     stopVoiceRecognition,
     transcribeAudio
   };

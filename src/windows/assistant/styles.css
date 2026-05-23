@@ -1229,7 +1229,7 @@ body.chat-resizing * {
 
 /* CODE FORMATTING */
 .result-text code, .message-content code {
-  background: rgba(30, 30, 30, 0.95);
+  background: rgba(30, 30, 30, 0.35);
   color: #a8e063;
   padding: 2px 5px;
   border-radius: 4px;
@@ -1240,9 +1240,9 @@ body.chat-resizing * {
 }
 
 .result-text pre, .message-content pre {
-  background: rgba(20, 20, 30, 0.98);
-  color: #e0e0e0;
-  border: 2px solid rgba(100, 180, 255, 0.5);
+  background: rgba(20, 20, 30, 0.28);
+  color: #f0f0f0;
+  border: 1px solid rgba(100, 180, 255, 0.45);
   border-radius: 8px;
   padding: 12px;
   margin: 8px 0;
@@ -1250,8 +1250,9 @@ body.chat-resizing * {
   font-size: 10px;
   line-height: 1.5;
   overflow-x: auto;
-  backdrop-filter: blur(20px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(2px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
 }
 
 .result-text pre code, .message-content pre code {
@@ -1264,9 +1265,9 @@ body.chat-resizing * {
 }
 
 .result-text .code-block, .message-content .code-block {
-  background: rgba(20, 20, 30, 0.98);
-  color: #e0e0e0;
-  border: 2px solid rgba(100, 180, 255, 0.5);
+  background: rgba(20, 20, 30, 0.28);
+  color: #f0f0f0;
+  border: 1px solid rgba(100, 180, 255, 0.45);
   border-radius: 8px;
   padding: 12px;
   margin: 8px 0;
@@ -1274,8 +1275,9 @@ body.chat-resizing * {
   font-size: 10px;
   line-height: 1.5;
   overflow-x: auto;
-  backdrop-filter: blur(20px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(2px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
 }
 
 .result-text .logic-section, .message-content .logic-section {
@@ -1923,6 +1925,58 @@ select.settings-input {
 
 .action-btn.settings-btn:hover {
   background: rgba(107, 114, 128, 0.4);
+}
+
+/* THEME: LIGHT MODE — the settings panel uses a near-opaque white background
+   (--glass-settings-bg), but the base styles paint all of its text white.
+   Re-color the settings text dark so it is legible in light mode. The dark
+   theme re-overrides these below. */
+body:not(.theme-dark) .settings-title,
+body:not(.theme-dark) .settings-label,
+body:not(.theme-dark) .settings-input,
+body:not(.theme-dark) .settings-input-toggle,
+body:not(.theme-dark) .settings-shortcut-button,
+body:not(.theme-dark) .settings-shortcut-icon {
+  color: rgba(15, 23, 42, 0.92);
+}
+
+body:not(.theme-dark) .settings-shortcut-description,
+body:not(.theme-dark) .settings-shortcuts-empty,
+body:not(.theme-dark) .settings-helper-text {
+  color: rgba(15, 23, 42, 0.62);
+}
+
+body:not(.theme-dark) .settings-input {
+  background: rgba(15, 23, 42, 0.05);
+  border-color: rgba(15, 23, 42, 0.18);
+}
+
+body:not(.theme-dark) .settings-input:focus {
+  background: rgba(15, 23, 42, 0.08);
+}
+
+body:not(.theme-dark) .settings-input::placeholder {
+  color: rgba(15, 23, 42, 0.4);
+}
+
+body:not(.theme-dark) select.settings-input {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24'%3E%3Cpath fill='%231e293b' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+}
+
+body:not(.theme-dark) .settings-shortcut-row {
+  background: rgba(15, 23, 42, 0.04);
+  border-color: rgba(15, 23, 42, 0.14);
+}
+
+body:not(.theme-dark) .settings-helper-text code {
+  background: rgba(15, 23, 42, 0.08);
+  color: rgba(15, 23, 42, 0.85);
+}
+
+body:not(.theme-dark) .settings-value-chip,
+body:not(.theme-dark) .settings-shortcut-key {
+  background: rgba(59, 130, 246, 0.16);
+  color: rgba(30, 58, 138, 0.95);
 }
 
 /* THEME: DARK MODE */

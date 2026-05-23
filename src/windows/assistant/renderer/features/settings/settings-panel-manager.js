@@ -18,6 +18,9 @@ export function createSettingsPanelManager({
     settingAssemblyKey,
     toggleAssemblyKeyVisibilityBtn,
     settingAssemblyModel,
+    settingSttProvider,
+    whisperSettingsGroup,
+    assemblyAiSettingsGroup,
     settingWindowOpacity,
     settingWindowOpacityValue,
     applySettingsShortcutConfig,
@@ -88,6 +91,27 @@ export function createSettingsPanelManager({
 
         settingAiProvider.addEventListener('change', () => {
             updateProviderVisibility(settingAiProvider.value);
+        });
+    }
+
+    function updateSttProviderVisibility(provider) {
+        const isWhisper = provider === 'whisper-local';
+
+        if (whisperSettingsGroup) {
+            whisperSettingsGroup.classList.toggle('hidden', !isWhisper);
+        }
+        if (assemblyAiSettingsGroup) {
+            assemblyAiSettingsGroup.classList.toggle('hidden', isWhisper);
+        }
+    }
+
+    function bindSttProviderToggle() {
+        if (!settingSttProvider) {
+            return;
+        }
+
+        settingSttProvider.addEventListener('change', () => {
+            updateSttProviderVisibility(settingSttProvider.value);
         });
     }
 
@@ -270,6 +294,13 @@ export function createSettingsPanelManager({
                     settings.assemblyAiSpeechModels,
                     settings.assemblyAiSpeechModel || settings.defaultAssemblyAiSpeechModel
                 );
+
+                // Transcription engine (STT provider)
+                const activeSttProvider = settings.sttProvider || settings.defaultSttProvider || 'whisper-local';
+                if (settingSttProvider) {
+                    settingSttProvider.value = activeSttProvider;
+                }
+                updateSttProviderVisibility(activeSttProvider);
                 if (settingWindowOpacity) {
                     settingWindowOpacity.value = normalizeWindowOpacityLevel(settings.windowOpacityLevel);
                 }
@@ -321,6 +352,7 @@ export function createSettingsPanelManager({
                 ollamaModel: settingOllamaModel ? settingOllamaModel.value.trim() : '',
                 programmingLanguage: settingProgrammingLanguage.value,
                 assemblyAiSpeechModel: settingAssemblyModel.value,
+                sttProvider: settingSttProvider ? settingSttProvider.value : 'whisper-local',
                 windowOpacityLevel: normalizeWindowOpacityLevel(settingWindowOpacity?.value)
             };
 
@@ -345,6 +377,7 @@ export function createSettingsPanelManager({
     bindApiKeyVisibilityToggle(settingGeminiKey, toggleGeminiKeyVisibilityBtn, 'Gemini');
     bindApiKeyVisibilityToggle(settingAssemblyKey, toggleAssemblyKeyVisibilityBtn, 'AssemblyAI');
     bindProviderToggle();
+    bindSttProviderToggle();
     bindFetchOllamaModels();
 
     return {

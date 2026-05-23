@@ -22,6 +22,12 @@ const ASSEMBLY_AI_SPEECH_MODELS = [
   'universal-streaming-multilingual'
 ];
 
+// Speech-to-text provider configuration.
+// 'whisper-local' runs whisper.cpp on-device (no API key, offline).
+// 'assemblyai' uses the AssemblyAI cloud streaming API (needs an API key).
+const STT_PROVIDERS = ['whisper-local', 'assemblyai'];
+const DEFAULT_STT_PROVIDER = process.platform === 'darwin' ? 'whisper-local' : 'assemblyai';
+
 // Programming language configuration.
 // The first language in this list is treated as the default language everywhere.
 const PROGRAMMING_LANGUAGES = [
@@ -247,6 +253,23 @@ function resolveAssemblyAiSpeechModel(modelName, fallbackModel = getDefaultAssem
   return getDefaultAssemblyAiSpeechModel();
 }
 
+// Speech-to-text provider configuration functions
+function getSttProviders() {
+  return [...STT_PROVIDERS];
+}
+
+function getDefaultSttProvider() {
+  return DEFAULT_STT_PROVIDER;
+}
+
+function isConfiguredSttProvider(providerName) {
+  return STT_PROVIDERS.includes(providerName);
+}
+
+function resolveSttProvider(providerName) {
+  return isConfiguredSttProvider(providerName) ? providerName : DEFAULT_STT_PROVIDER;
+}
+
 function getKeyboardShortcuts() {
   if (!Array.isArray(KEYBOARD_SHORTCUTS) || KEYBOARD_SHORTCUTS.length === 0) {
     throw new Error('Keyboard shortcuts are not configured. Add at least one shortcut to src/config.js.');
@@ -290,6 +313,10 @@ module.exports = {
   getDefaultAssemblyAiSpeechModel,
   getGeminiModels,
   getDefaultGeminiModel,
+  getSttProviders,
+  getDefaultSttProvider,
+  isConfiguredSttProvider,
+  resolveSttProvider,
   getKeyboardShortcutAccelerator,
   getKeyboardShortcutById,
   getKeyboardShortcuts,

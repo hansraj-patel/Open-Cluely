@@ -14,6 +14,7 @@ function getDefaultAppState() {
     ollamaBaseUrl: null,
     ollamaModel: null,
     assemblyAiSpeechModel: null,
+    sttProvider: null,
     programmingLanguage: null,
     windowOpacityLevel: 10,
     themePreference: null
@@ -58,6 +59,11 @@ function sanitizeAppState(state) {
 
     if (typeof state.assemblyAiSpeechModel === 'string' && state.assemblyAiSpeechModel.trim()) {
       nextState.assemblyAiSpeechModel = state.assemblyAiSpeechModel.trim();
+    }
+
+    const sttProvider = String(state.sttProvider ?? '').trim().toLowerCase();
+    if (sttProvider === 'whisper-local' || sttProvider === 'assemblyai') {
+      nextState.sttProvider = sttProvider;
     }
 
     if (typeof state.programmingLanguage === 'string' && state.programmingLanguage.trim()) {
