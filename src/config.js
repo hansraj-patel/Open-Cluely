@@ -152,6 +152,24 @@ const KEYBOARD_SHORTCUTS = [
     buttonLabel: 'Size Preset 4',
     description: 'Resize window to +75% from minimum size',
     accelerator: 'Alt+Shift+4'
+  },
+  {
+    id: 'toggleClickThrough',
+    buttonLabel: 'Click-through',
+    description: 'Toggle passive overlay (clicks pass through, never grabs focus)',
+    accelerator: 'F4'
+  },
+  {
+    id: 'scrollChatUp',
+    buttonLabel: 'Scroll Chat Up',
+    description: 'Scroll the chat up without focusing the window',
+    accelerator: 'F5'
+  },
+  {
+    id: 'scrollChatDown',
+    buttonLabel: 'Scroll Chat Down',
+    description: 'Scroll the chat down without focusing the window',
+    accelerator: 'F6'
   }
 ];
 

@@ -1307,6 +1307,7 @@ function setupIpcListeners() {
         askAiWithSessionContext,
         isAskAiShortcutEnabled: () => Boolean(analyzeBtn && !analyzeBtn.disabled),
         addMonitorLog,
+        scrollChat: (direction) => chatUiManager.scrollChatBy(direction),
         getActiveScreenAiStream: () => activeScreenAiStream,
         clearActiveScreenAiStream: () => {
             if (activeScreenAiStream) {

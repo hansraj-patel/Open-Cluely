@@ -13,6 +13,7 @@ export function setupIpcListeners({
     askAiWithSessionContext,
     isAskAiShortcutEnabled,
     addMonitorLog,
+    scrollChat,
     getActiveScreenAiStream,
     clearActiveScreenAiStream
 }) {
@@ -118,6 +119,22 @@ export function setupIpcListeners({
                 console.error('Global Ask AI trigger failed:', error);
                 addMonitorLog('error', 'shortcut-ask-ai-failed', error.message);
             });
+        });
+    }
+
+    if (windowApi.onScrollChat) {
+        windowApi.onScrollChat((data) => {
+            const direction = data?.direction === 'up' ? 'up' : 'down';
+            if (typeof scrollChat === 'function') {
+                scrollChat(direction);
+            }
+        });
+    }
+
+    if (windowApi.onSetClickThrough) {
+        windowApi.onSetClickThrough((data) => {
+            const enabled = Boolean(data?.enabled);
+            showFeedback(enabled ? 'Click-through ON' : 'Click-through OFF', 'info');
         });
     }
 

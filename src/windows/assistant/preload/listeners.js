@@ -106,6 +106,16 @@ function createEventActions(ipcRenderer) {
     label: 'onClearFromMobile'
   });
 
+  const onScrollChat = createEventListener(ipcRenderer, {
+    channel: 'scroll-chat',
+    label: 'onScrollChat'
+  });
+
+  const onSetClickThrough = createEventListener(ipcRenderer, {
+    channel: 'set-click-through',
+    label: 'onSetClickThrough'
+  });
+
   return {
     onScreenshotTakenStealth,
     onAnalysisStart,
@@ -127,7 +137,9 @@ function createEventActions(ipcRenderer) {
     onTriggerAskAi,
     onSttDebug: (callback) => rawOnSttDebug((data) => callback(data || {})),
     onMobileServerStatus,
-    onClearFromMobile
+    onClearFromMobile,
+    onScrollChat,
+    onSetClickThrough
   };
 }
 

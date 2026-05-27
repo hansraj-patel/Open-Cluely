@@ -206,12 +206,25 @@ export function createChatUiManager({
         chatManualInput.focus();
     }
 
+    function scrollChatBy(direction) {
+        if (!chatMessagesElement) {
+            return;
+        }
+
+        const step = Math.max(80, chatMessagesElement.clientHeight * 0.8);
+        chatMessagesElement.scrollBy({
+            top: direction === 'up' ? -step : step,
+            behavior: 'smooth'
+        });
+    }
+
     return {
         addChatMessage,
         updateChatMessageContent,
         autoResizeManualInput,
         submitManualContextMessage,
         updateManualComposerState,
-        isChatNearBottom
+        isChatNearBottom,
+        scrollChatBy
     };
 }

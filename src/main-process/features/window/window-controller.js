@@ -22,6 +22,7 @@ function createWindowController({
 }) {
   let mainWindow = null;
   let isVisible = true;
+  let clickThroughEnabled = false;
   let autoHideTimer = null;
   let isRecoveryReloadInProgress = false;
   let lastRecoveryReloadAt = 0;
@@ -264,6 +265,31 @@ function createWindowController({
     sendToRenderer('set-stealth-mode', stealthModeEnabled);
   }
 
+  function toggleClickThrough() {
+    if (!mainWindow || mainWindow.isDestroyed()) {
+      return clickThroughEnabled;
+    }
+
+    clickThroughEnabled = !clickThroughEnabled;
+
+    if (clickThroughEnabled) {
+      mainWindow.setIgnoreMouseEvents(true, { forward: true });
+      mainWindow.setFocusable(false);
+      if (mainWindow.isFocused()) {
+        mainWindow.blur();
+      }
+      if (mainWindow.isVisible()) {
+        mainWindow.showInactive();
+      }
+    } else {
+      mainWindow.setIgnoreMouseEvents(false);
+      mainWindow.setFocusable(true);
+    }
+
+    sendToRenderer('set-click-through', { enabled: clickThroughEnabled });
+    return clickThroughEnabled;
+  }
+
   function emergencyHide() {
     if (autoHideTimer) {
       clearTimeout(autoHideTimer);
@@ -408,6 +434,18 @@ function createWindowController({
       sendToRenderer('toggle-voice-recognition');
     });
 
+    registerShortcut('toggleClickThrough', () => {
+      toggleClickThrough();
+    });
+
+    registerShortcut('scrollChatUp', () => {
+      sendToRenderer('scroll-chat', { direction: 'up' });
+    });
+
+    registerShortcut('scrollChatDown', () => {
+      sendToRenderer('scroll-chat', { direction: 'down' });
+    });
+
     registerShortcut('moveWindowLeft', () => {
       moveToPosition('left');
     });
@@ -487,6 +525,7 @@ function createWindowController({
     setWindowSizePreset,
     setWindowBounds,
     setWindowOpacityLevel,
+    toggleClickThrough,
     toggleStealthMode,
     unregisterShortcuts
   };
