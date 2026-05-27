@@ -106,6 +106,11 @@ function createEventActions(ipcRenderer) {
     label: 'onClearFromMobile'
   });
 
+  const onTriggerShortcutAction = createEventListener(ipcRenderer, {
+    channel: 'trigger-shortcut-action',
+    label: 'onTriggerShortcutAction'
+  });
+
   const onScrollChat = createEventListener(ipcRenderer, {
     channel: 'scroll-chat',
     label: 'onScrollChat'
@@ -138,6 +143,7 @@ function createEventActions(ipcRenderer) {
     onSttDebug: (callback) => rawOnSttDebug((data) => callback(data || {})),
     onMobileServerStatus,
     onClearFromMobile,
+    onTriggerShortcutAction,
     onScrollChat,
     onSetClickThrough
   };

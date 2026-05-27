@@ -96,7 +96,7 @@ const KEYBOARD_SHORTCUTS = [
     id: 'screenAi',
     buttonLabel: 'Screen AI',
     description: 'Analyzes only enabled screenshots selected in chat',
-    accelerator: 'Alt+Shift+E'
+    accelerator: 'Alt+Shift+D'
   },
   {
     id: 'suggest',
@@ -108,13 +108,13 @@ const KEYBOARD_SHORTCUTS = [
     id: 'notes',
     buttonLabel: 'Notes',
     description: 'Generates notes from only enabled context',
-    accelerator: 'Alt+Shift+N'
+    accelerator: 'Alt+Shift+M'
   },
   {
     id: 'insights',
     buttonLabel: 'Insights',
     description: 'Finds key insights from only enabled context',
-    accelerator: 'Alt+Shift+I'
+    accelerator: 'Alt+Shift+K'
   },
   {
     id: 'clearChat',

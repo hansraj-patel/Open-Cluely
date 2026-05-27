@@ -420,6 +420,26 @@ function createWindowController({
       sendToRenderer('trigger-ask-ai');
     });
 
+    registerShortcut('screenAi', () => {
+      sendToRenderer('trigger-shortcut-action', { action: 'screenAi' });
+    });
+
+    registerShortcut('suggest', () => {
+      sendToRenderer('trigger-shortcut-action', { action: 'suggest' });
+    });
+
+    registerShortcut('notes', () => {
+      sendToRenderer('trigger-shortcut-action', { action: 'notes' });
+    });
+
+    registerShortcut('insights', () => {
+      sendToRenderer('trigger-shortcut-action', { action: 'insights' });
+    });
+
+    registerShortcut('clearChat', () => {
+      sendToRenderer('trigger-shortcut-action', { action: 'clearChat' });
+    });
+
     registerShortcut('emergencyHide', () => {
       emergencyHide();
     });

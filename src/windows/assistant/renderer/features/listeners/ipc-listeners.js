@@ -14,6 +14,7 @@ export function setupIpcListeners({
     isAskAiShortcutEnabled,
     addMonitorLog,
     scrollChat,
+    shortcutActions,
     getActiveScreenAiStream,
     clearActiveScreenAiStream
 }) {
@@ -118,6 +119,23 @@ export function setupIpcListeners({
             askAiWithSessionContext().catch((error) => {
                 console.error('Global Ask AI trigger failed:', error);
                 addMonitorLog('error', 'shortcut-ask-ai-failed', error.message);
+            });
+        });
+    }
+
+    if (windowApi.onTriggerShortcutAction) {
+        windowApi.onTriggerShortcutAction((data) => {
+            const action = data?.action;
+            const handler = shortcutActions && typeof shortcutActions[action] === 'function'
+                ? shortcutActions[action]
+                : null;
+            if (!handler) {
+                return;
+            }
+            addMonitorLog('info', 'shortcut-event', `Global shortcut triggered: ${action}`);
+            Promise.resolve(handler()).catch((error) => {
+                console.error(`Global shortcut "${action}" failed:`, error);
+                addMonitorLog('error', 'shortcut-action-failed', `${action}: ${error.message}`);
             });
         });
     }
