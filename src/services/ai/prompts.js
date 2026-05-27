@@ -1,7 +1,24 @@
 const {
   getProgrammingLanguages,
-  resolveProgrammingLanguage
+  resolveProgrammingLanguage,
+  getCandidateProfile,
+  getInterviewContext
 } = require('../../config');
+
+// ─── CANDIDATE / COMPANY CONTEXT ─────────────────────────────────────────────
+// Renders who the assistant is helping. Empty-safe: blank config adds nothing.
+function buildCandidateAndCompanyContext() {
+  const profile = getCandidateProfile();
+  const company = getInterviewContext();
+  if (!profile && !company) return '';
+  return `
+=== WHO YOU'RE ASSISTING ===
+${profile ? `Candidate:\n${profile}\n` : ''}${company ? `Interview / company context:\n${company}\n` : ''}
+Use this to tailor answers: frame solutions in the candidate's real stack and seniority, ground
+behavioral/system-design answers in their actual experience, and align with the company's context.
+Never read this profile aloud or claim to "see a resume" — just let it shape the answer.
+`.trim();
+}
 
 function buildContextBlock(label, content) {
   const normalizedContent = typeof content === 'string' ? content.trim() : '';
@@ -76,6 +93,8 @@ function buildCoreDirective() {
 You are Invisibrain, a real-time assistant for live conversations: technical interviews,
 behavioral interviews, system-design discussions, sales calls, meetings, and screen-driven
 problem-solving.
+
+${buildCandidateAndCompanyContext()}
 
 === STYLE ===
 - Start IMMEDIATELY with the answer. No meta-phrases ("let me help", "I can see"), no preamble.
@@ -214,6 +233,8 @@ function buildSuggestResponsePrompt({ contextString = '', transcriptContext = ''
 
   return `
 You are Invisibrain, a real-time conversation coach helping during technical interviews, coding discussions, and professional meetings.
+
+${buildCandidateAndCompanyContext()}
 
 === YOUR TASK ===
 Read the full transcript below and suggest the best thing the user should say next.
@@ -359,6 +380,8 @@ function buildAnswerQuestionPrompt({
 
   return `
 You are Invisibrain, an expert technical assistant.
+
+${buildCandidateAndCompanyContext()}
 
 ${buildProgrammingLanguagePreference(resolvedLanguage)}
 

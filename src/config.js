@@ -42,6 +42,35 @@ const PROGRAMMING_LANGUAGES = [
   'Kotlin'
 ];
 
+// Candidate profile injected into live AI prompts so the assistant tailors
+// answers to who the user actually is. Edit freely per interview.
+const CANDIDATE_PROFILE = `
+- Name: Hansraj Patel — Senior AI Engineer, two-time startup founder/CTO. IIT Guwahati, B.Tech CSE (2017–2021).
+- Core strength: ships production AI/ML end-to-end — computer vision (YOLO, VLMs, OpenCV), LLM agents
+  (MCP, tool-calling, RAG with source grounding, agentic memory), voice AI (STT/TTS), edge inference.
+- AI security depth: hallucination control, prompt-injection defense, PII isolation/redaction, audit
+  logging, AES-256 / TLS 1.2+, deterministic compliance workflows (ISO 42001 / AIUC-1 aware).
+- Languages: Python, TypeScript/JavaScript, Java. Frameworks: FastAPI, Spring Boot, React, Node, Astro, Hono, Capacitor.
+- Cloud/Infra: AWS, GCP, Azure, Cloudflare; Docker, Kubernetes, Terraform; edge inference.
+- Data: PostgreSQL, MongoDB, DynamoDB, Redis, vector + graph databases; data modelling/warehousing, large-scale processing.
+- Track record: CTO of Flyzy (travel platform scaled to ~INR 160 Cr ARR over 5 yrs; microservices booking
+  engine, payments, real-time inventory; GDS/consolidator integrations). Founder/CTO of drik.ai (sovereign
+  edge vehicle-intelligence vision pipeline, air-gapped graph analytics). Amazon SDE intern (Payments, Java/Spring Boot/AWS).
+`.trim();
+
+// Interview/company context injected into live AI prompts.
+const INTERVIEW_CONTEXT = `
+- Company: Think41 (Bengaluru, India) — a full-stack GenAI services company founded Nov 2024 by ex-Deloitte
+  MDs / HashedIn founders (Anshuman Singh, Harshit Singhal, Himanshu Varshney, Sripathi Krishnan; HashedIn was acquired by Deloitte).
+- What they do: enterprise transformation via GenAI — agentic workflows, conversational AI, AI-accelerated
+  software engineering. Signature offering: "Autopods" — AI-driven engineering pods on their proprietary "Dev41" platform.
+- Interview stage: CODING ROUND. Expect a take-home/practical task run locally and submitted via GitHub link,
+  and/or REST-API-focused problems (multiple endpoints under time pressure). React/Node and clean API design
+  are valued; strong fundamentals + clear communication about your own projects.
+- Roles in play: Principal Engineer, Engineering Manager, Senior Engineer, SDE-3 — bias answers toward senior
+  judgment: trade-offs, scalability, code quality, testing, and clear reasoning, not just a passing solution.
+`.trim();
+
 // Keyboard shortcuts configuration.
 // Edit accelerators here to customize app shortcuts in one place.
 const KEYBOARD_SHORTCUTS = [
@@ -288,6 +317,15 @@ function resolveSttProvider(providerName) {
   return isConfiguredSttProvider(providerName) ? providerName : DEFAULT_STT_PROVIDER;
 }
 
+// Candidate profile / interview context configuration functions
+function getCandidateProfile() {
+  return (CANDIDATE_PROFILE || '').trim();
+}
+
+function getInterviewContext() {
+  return (INTERVIEW_CONTEXT || '').trim();
+}
+
 function getKeyboardShortcuts() {
   if (!Array.isArray(KEYBOARD_SHORTCUTS) || KEYBOARD_SHORTCUTS.length === 0) {
     throw new Error('Keyboard shortcuts are not configured. Add at least one shortcut to src/config.js.');
@@ -335,6 +373,8 @@ module.exports = {
   getDefaultSttProvider,
   isConfiguredSttProvider,
   resolveSttProvider,
+  getCandidateProfile,
+  getInterviewContext,
   getKeyboardShortcutAccelerator,
   getKeyboardShortcutById,
   getKeyboardShortcuts,
